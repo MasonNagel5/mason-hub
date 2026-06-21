@@ -24,6 +24,7 @@ export default function TodoPage() {
   const [view, setView] = useState("today");
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState(null);
+  const [name, setName] = useState("");
 
   async function loadTasks() {
     const { tasks } = await api("/api/tasks");
@@ -35,7 +36,16 @@ export default function TodoPage() {
     try { setEvents((await api("/api/calendar/upcoming?hours=48")).events); } catch {}
     setLoading(false);
   }
-  useEffect(() => { loadAll(); }, []);
+  useEffect(() => {
+    loadAll();
+    api("/api/settings").then((s) => setName(s.settings?.display_name || "")).catch(() => {});
+  }, []);
+
+  const greeting = (() => {
+    const h = new Date().getHours();
+    const part = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+    return name ? `${part}, ${name}` : part;
+  })();
 
   async function toggle(t) {
     setTasks((p) => p.map((x) => (x.id === t.id ? { ...x, done: !x.done } : x)));
@@ -61,6 +71,7 @@ export default function TodoPage() {
 
   return (
     <div>
+      <div style={{ fontSize: 13, color: "var(--color-muted)", marginBottom: 4 }}>{greeting}</div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
         <Clock />
         <div style={{ display: "flex", gap: 8 }}>
