@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Clock from "./components/Clock";
-import ProfDevPanel from "./components/ProfDevPanel";
 import Briefing from "./components/Briefing";
 import WeekView from "./components/WeekView";
 import MeetingQuickNote from "./components/MeetingQuickNote";
@@ -12,20 +11,19 @@ import { fmtTime } from "@/lib/dates.js";
 const SOURCE_TAG = {
   assignment: { label: "Assignment", color: "var(--color-accent)" },
   project: { label: "Project", color: "var(--color-green)" },
-  recurring: { label: "Routine", color: "var(--color-orange)" },
+  recurring: { label: "Study", color: "var(--color-orange)" },
   inbox: { label: "Inbox", color: "var(--color-yellow)" },
-  manual: { label: "Manual", color: "var(--color-muted)" },
+  manual: { label: "Task", color: "var(--color-muted)" },
 };
 
-export default function Dashboard() {
+export default function TodoPage() {
   const [tasks, setTasks] = useState([]);
   const [events, setEvents] = useState([]);
-  const [projects, setProjects] = useState([]);
   const [newTask, setNewTask] = useState("");
-  const [inboxItem, setInboxItem] = useState("");
+  const [newDue, setNewDue] = useState("");
+  const [view, setView] = useState("today");
   const [loading, setLoading] = useState(true);
-  const [summaryMsg, setSummaryMsg] = useState(null);
-  const [view, setView] = useState("today"); // today | week
+  const [msg, setMsg] = useState(null);
 
   async function loadTasks() {
     const { tasks } = await api("/api/tasks");
@@ -33,51 +31,29 @@ export default function Dashboard() {
   }
   async function loadAll() {
     setLoading(true);
-    try {
-      await loadTasks();
-    } catch {}
-    try {
-      const { events } = await api("/api/calendar/upcoming?hours=48");
-      setEvents(events);
-    } catch {}
-    try {
-      const { projects } = await api("/api/projects");
-      setProjects(projects);
-    } catch {}
+    try { await loadTasks(); } catch {}
+    try { setEvents((await api("/api/calendar/upcoming?hours=48")).events); } catch {}
     setLoading(false);
   }
-  useEffect(() => {
-    loadAll();
-  }, []);
+  useEffect(() => { loadAll(); }, []);
 
   async function toggle(t) {
-    setTasks((prev) => prev.map((x) => (x.id === t.id ? { ...x, done: !x.done } : x)));
-    try {
-      await api(`/api/tasks/${t.id}`, { method: "PATCH", body: JSON.stringify({ done: !t.done }) });
-    } catch {
-      loadTasks();
-    }
+    setTasks((p) => p.map((x) => (x.id === t.id ? { ...x, done: !x.done } : x)));
+    try { await api(`/api/tasks/${t.id}`, { method: "PATCH", body: JSON.stringify({ done: !t.done }) }); }
+    catch { loadTasks(); }
   }
   async function addTask() {
     if (!newTask.trim()) return;
-    await api("/api/tasks", { method: "POST", body: JSON.stringify({ title: newTask }) });
-    setNewTask("");
+    const due = newDue ? new Date(`${newDue}T17:00`).toISOString() : null;
+    await api("/api/tasks", { method: "POST", body: JSON.stringify({ title: newTask, due }) });
+    setNewTask(""); setNewDue("");
     loadTasks();
   }
-  async function deleteTask(id) {
-    await api(`/api/tasks/${id}`, { method: "DELETE" });
-    loadTasks();
-  }
-  async function addInbox() {
-    if (!inboxItem.trim()) return;
-    await api("/api/inbox", { method: "POST", body: JSON.stringify({ item: inboxItem }) });
-    setInboxItem("");
-    loadTasks();
-  }
+  async function del(id) { await api(`/api/tasks/${id}`, { method: "DELETE" }); loadTasks(); }
   async function writeSummary() {
     const r = await api("/api/daily-summary", { method: "POST" });
-    setSummaryMsg(`Wrote ${r.count} completed task${r.count === 1 ? "" : "s"} to today's daily note.`);
-    setTimeout(() => setSummaryMsg(null), 4000);
+    setMsg(`Logged ${r.count} completed task${r.count === 1 ? "" : "s"} to today's daily note.`);
+    setTimeout(() => setMsg(null), 4000);
   }
 
   const open = tasks.filter((t) => !t.done);
@@ -89,146 +65,78 @@ export default function Dashboard() {
         <Clock />
         <div style={{ display: "flex", gap: 8 }}>
           <MeetingQuickNote />
-          <button className="btn btn-accent" onClick={writeSummary} title="Write today's completed tasks to the daily note">
-            🌙 End-of-day summary
-          </button>
+          <button className="btn btn-accent" onClick={writeSummary} title="Write today's completed tasks to the daily note">🌙 End-of-day summary</button>
         </div>
       </div>
-      {summaryMsg && (
-        <div className="card" style={{ padding: 10, marginBottom: 16, borderColor: "var(--color-green)", color: "var(--color-green)", fontSize: 13 }}>
-          {summaryMsg}
-        </div>
-      )}
+      {msg && <div className="card" style={{ padding: 10, marginBottom: 16, borderColor: "var(--color-green)", color: "var(--color-green)", fontSize: 13 }}>{msg}</div>}
 
       <Briefing />
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr", gap: 16, alignItems: "start" }}>
-        {/* LEFT: tasks */}
+      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 16, alignItems: "start" }}>
         <div className="card" style={{ padding: 16 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-            <div style={{ display: "flex", gap: 6 }}>
-              <button className={view === "today" ? "btn btn-accent" : "btn"} style={{ padding: "4px 10px", fontSize: 13 }} onClick={() => setView("today")}>✅ Today</button>
-              <button className={view === "week" ? "btn btn-accent" : "btn"} style={{ padding: "4px 10px", fontSize: 13 }} onClick={() => setView("week")}>🗓 This Week</button>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+            <div>
+              <button className={`subtab ${view === "today" ? "active" : ""}`} onClick={() => setView("today")}>Today</button>
+              <button className={`subtab ${view === "week" ? "active" : ""}`} onClick={() => setView("week")}>This Week</button>
             </div>
-            {view === "today" && (
-              <span style={{ fontSize: 12, color: "var(--color-muted)" }}>
-                {open.length} open · {done.length} done
-              </span>
-            )}
+            {view === "today" && <span style={{ fontSize: 12, color: "var(--color-muted)" }}>{open.length} open · {done.length} done</span>}
           </div>
 
           {view === "week" ? (
             <WeekView />
           ) : (
-          <>
-
-          <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
-            <input
-              className="input"
-              placeholder="Add a task…"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addTask()}
-            />
-            <button className="btn btn-accent" onClick={addTask}>
-              Add
-            </button>
-          </div>
-
-          {loading && <div style={{ color: "var(--color-muted)", fontSize: 13 }}>Loading…</div>}
-          {!loading && open.length === 0 && done.length === 0 && (
-            <div style={{ color: "var(--color-muted)", fontSize: 13 }}>No tasks. Add one above.</div>
-          )}
-
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {open.map((t) => (
-              <TaskRow key={t.id} t={t} onToggle={toggle} onDelete={deleteTask} />
-            ))}
-          </div>
-
-          {done.length > 0 && (
             <>
-              <div style={{ fontSize: 11, color: "var(--color-muted)", margin: "16px 0 6px", textTransform: "uppercase", letterSpacing: 1 }}>
-                Completed today
+              <div style={{ display: "flex", gap: 6, marginBottom: 14 }}>
+                <input className="input" placeholder="Add a task…" value={newTask} onChange={(e) => setNewTask(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addTask()} />
+                <input className="input" type="date" value={newDue} onChange={(e) => setNewDue(e.target.value)} style={{ width: 150 }} title="Optional due date" />
+                <button className="btn btn-accent" onClick={addTask}>Add</button>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {done.map((t) => (
-                  <TaskRow key={t.id} t={t} onToggle={toggle} onDelete={deleteTask} />
-                ))}
-              </div>
-            </>
-          )}
 
-          <div style={{ display: "flex", gap: 6, marginTop: 16, paddingTop: 14, borderTop: "1px solid var(--color-border)" }}>
-            <input
-              className="input"
-              placeholder="Dump to vault inbox…"
-              value={inboxItem}
-              onChange={(e) => setInboxItem(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addInbox()}
-            />
-            <button className="btn" onClick={addInbox}>
-              → Inbox
-            </button>
-          </div>
-          </>
+              {loading && <div style={{ color: "var(--color-muted)", fontSize: 13 }}>Loading…</div>}
+              {!loading && tasks.length === 0 && <div style={{ color: "var(--color-muted)", fontSize: 13 }}>Nothing yet. Add a task above — it saves straight to your vault.</div>}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {open.map((t) => <TaskRow key={t.id} t={t} onToggle={toggle} onDelete={del} />)}
+              </div>
+              {done.length > 0 && (
+                <>
+                  <div style={{ fontSize: 11, color: "var(--color-muted)", margin: "16px 0 6px", textTransform: "uppercase", letterSpacing: 1 }}>Completed today</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {done.map((t) => <TaskRow key={t.id} t={t} onToggle={toggle} onDelete={del} />)}
+                  </div>
+                </>
+              )}
+            </>
           )}
         </div>
 
-        {/* RIGHT */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          <div className="card" style={{ padding: 16 }}>
-            <h3 style={{ margin: "0 0 10px", fontSize: 14 }}>📅 Next 48 hours</h3>
-            {events.length === 0 ? (
-              <div style={{ fontSize: 13, color: "var(--color-muted)" }}>Nothing scheduled.</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {events.slice(0, 8).map((e) => (
-                  <div key={e.id} style={{ display: "flex", gap: 10, fontSize: 13 }}>
-                    <div style={{ width: 4, borderRadius: 2, background: srcColor(e.source) }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 500 }}>{e.title}</div>
-                      <div style={{ color: "var(--color-muted)", fontSize: 12 }}>
-                        {new Date(e.start).toLocaleDateString([], { weekday: "short" })} {fmtTime(e.start)}
-                        {e.className ? ` · ${e.className}` : ""}
-                      </div>
+        <div className="card" style={{ padding: 16 }}>
+          <h3 style={{ margin: "0 0 10px", fontSize: 14 }}>📅 Next 48 hours</h3>
+          {events.length === 0 ? (
+            <div style={{ fontSize: 13, color: "var(--color-muted)" }}>Nothing scheduled.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {events.slice(0, 10).map((e) => (
+                <div key={e.id} style={{ display: "flex", gap: 10, fontSize: 13 }}>
+                  <div style={{ width: 4, borderRadius: 2, background: srcColor(e.source) }} />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 500 }}>{e.title}</div>
+                    <div style={{ color: "var(--color-muted)", fontSize: 12 }}>
+                      {new Date(e.start).toLocaleDateString([], { weekday: "short" })} {fmtTime(e.start)}{e.className ? ` · ${e.className}` : ""}
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <ProfDevPanel />
-
-          <div className="card" style={{ padding: 16 }}>
-            <h3 style={{ margin: "0 0 10px", fontSize: 14 }}>📂 Active Projects</h3>
-            {projects.length === 0 ? (
-              <div style={{ fontSize: 13, color: "var(--color-muted)" }}>No projects found in the vault.</div>
-            ) : (
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {projects.map((p) => (
-                  <div key={p.folder} style={{ fontSize: 13 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-                      <span style={{ fontWeight: 600 }}>{p.title}</span>
-                      {p.status && <span style={{ fontSize: 11, whiteSpace: "nowrap" }}>{p.status}</span>}
-                    </div>
-                    {p.nextAction && (
-                      <div style={{ color: "var(--color-muted)", fontSize: 12, marginTop: 1 }}>→ {p.nextAction}</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function srcColor(source) {
-  return { assignment: "var(--color-accent)", shift: "var(--color-orange)", manual: "var(--color-green)" }[source] || "var(--color-muted)";
+function srcColor(s) {
+  return { assignment: "var(--color-accent)", shift: "var(--color-orange)", manual: "var(--color-green)" }[s] || "var(--color-muted)";
 }
 
 function TaskRow({ t, onToggle, onDelete }) {
@@ -238,29 +146,11 @@ function TaskRow({ t, onToggle, onDelete }) {
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <input type="checkbox" checked={t.done} onChange={() => onToggle(t)} style={{ width: 16, height: 16, accentColor: "var(--color-accent)", cursor: "pointer" }} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontSize: 13, textDecoration: t.done ? "line-through" : "none", color: t.done ? "var(--color-muted)" : "var(--color-text)" }}>
-          {t.meta?.url ? (
-            <a href={t.meta.url} target="_blank" rel="noreferrer" style={{ color: "inherit" }}>
-              {t.title}
-            </a>
-          ) : (
-            t.title
-          )}
-        </span>
-        {t.due && (
-          <span style={{ fontSize: 11, marginLeft: 8, color: overdue ? "var(--color-red)" : "var(--color-muted)" }}>
-            {new Date(t.due).toLocaleDateString([], { month: "short", day: "numeric" })} {fmtTime(t.due)}
-          </span>
-        )}
+        <span style={{ fontSize: 13, textDecoration: t.done ? "line-through" : "none", color: t.done ? "var(--color-muted)" : "var(--color-text)" }}>{t.title}</span>
+        {t.due && <span style={{ fontSize: 11, marginLeft: 8, color: overdue ? "var(--color-red)" : "var(--color-muted)" }}>{new Date(t.due).toLocaleDateString([], { month: "short", day: "numeric" })}</span>}
       </div>
-      <span className="tag" style={{ color: tag.color, borderColor: tag.color }}>
-        {tag.label}
-      </span>
-      {(t.source === "manual") && (
-        <button className="btn" style={{ padding: "2px 6px", fontSize: 11 }} onClick={() => onDelete(t.id)}>
-          ✕
-        </button>
-      )}
+      <span className="tag" style={{ color: tag.color, borderColor: tag.color }}>{tag.label}</span>
+      {t.source === "manual" && <button className="btn" style={{ padding: "2px 6px", fontSize: 11 }} onClick={() => onDelete(t.id)}>✕</button>}
     </div>
   );
 }

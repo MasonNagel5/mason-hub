@@ -28,10 +28,6 @@ export default function Briefing() {
       ),
     });
   }
-  lines.push({
-    icon: "🏋",
-    text: <>Today's lift: <b style={{ color: b.ppl === "Rest" ? "var(--color-muted)" : "var(--color-green)" }}>{b.ppl || "—"}</b></>,
-  });
   if (b.examsSoon?.length) {
     const e = b.examsSoon[0];
     lines.push({ icon: "📝", text: <><b>{e.name}</b> ({e.className}) in <b style={{ color: e.daysUntil <= 7 ? "var(--color-red)" : "inherit" }}>{e.daysUntil}d</b></> });
