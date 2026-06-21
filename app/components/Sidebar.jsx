@@ -3,24 +3,58 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CLASSES } from "@/lib/classes.js";
-import Pomodoro from "./Pomodoro";
 
-const TABS = [
-  { href: "/", label: "Dashboard", icon: "▦" },
-  { href: "/calendar", label: "Calendar", icon: "▤" },
-  { href: "/secplus", label: "Security+", icon: "🎯" },
-  { href: "/career", label: "Career", icon: "💼" },
-  { href: "/gym", label: "Gym", icon: "🏋" },
+const GROUPS = [
+  {
+    title: "Daily",
+    items: [
+      { href: "/", label: "To-Do", icon: "✓" },
+      { href: "/study", label: "Study", icon: "📚" },
+      { href: "/calendar", label: "Calendar", icon: "🗓" },
+      { href: "/journal", label: "Journal", icon: "✍" },
+    ],
+  },
+  {
+    title: "Academics",
+    items: [
+      ...CLASSES.map((c) => ({ href: `/class/${c.slug}`, label: c.short || c.name, icon: "›", title: c.name })),
+      { href: "/projects", label: "Projects", icon: "🧩" },
+    ],
+  },
+  {
+    title: "Career",
+    items: [
+      { href: "/jobs", label: "Job Tracker", icon: "🏛" },
+      { href: "/networking", label: "Networking", icon: "🤝" },
+      { href: "/sfs", label: "SFS", icon: "🎓" },
+      { href: "/boeing", label: "Boeing Mentorship", icon: "✈" },
+      { href: "/docs", label: "Documents", icon: "📄" },
+    ],
+  },
+  {
+    title: "Work",
+    items: [
+      { href: "/ra", label: "RA", icon: "🏠" },
+      { href: "/ambassador", label: "Ambassador", icon: "🎤" },
+    ],
+  },
+  {
+    title: "Life",
+    items: [
+      { href: "/budget", label: "Budget", icon: "💵" },
+      { href: "/weight", label: "Weight", icon: "⚖" },
+    ],
+  },
 ];
 
-export default function Sidebar({ collapsed, onToggle, onOpenSettings, pplToday }) {
+export default function Sidebar({ collapsed, onToggle, onOpenSettings }) {
   const path = usePathname();
 
   const itemStyle = (active) => ({
     display: "flex",
     alignItems: "center",
     gap: 10,
-    padding: collapsed ? "10px 0" : "8px 12px",
+    padding: collapsed ? "9px 0" : "7px 10px",
     justifyContent: collapsed ? "center" : "flex-start",
     borderRadius: 6,
     color: active ? "#fff" : "var(--color-muted)",
@@ -34,30 +68,23 @@ export default function Sidebar({ collapsed, onToggle, onOpenSettings, pplToday 
   return (
     <aside
       style={{
-        width: collapsed ? 56 : 230,
+        width: collapsed ? 56 : 220,
         flexShrink: 0,
         background: "var(--color-card)",
         borderRight: "1px solid var(--color-border)",
-        padding: collapsed ? "16px 8px" : "16px 14px",
+        padding: collapsed ? "16px 8px" : "16px 12px",
         display: "flex",
         flexDirection: "column",
-        gap: 4,
+        gap: 2,
         position: "sticky",
         top: 0,
         height: "100vh",
         overflowY: "auto",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: collapsed ? "center" : "space-between",
-          marginBottom: 14,
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "space-between", marginBottom: 12 }}>
         {!collapsed && (
-          <span style={{ fontWeight: 700, fontSize: 15, color: "var(--color-text)" }}>
+          <span style={{ fontWeight: 700, fontSize: 15 }}>
             Mason<span style={{ color: "var(--color-accent)" }}>·Hub</span>
           </span>
         )}
@@ -66,42 +93,24 @@ export default function Sidebar({ collapsed, onToggle, onOpenSettings, pplToday 
         </button>
       </div>
 
-      {TABS.map((t) => (
-        <Link key={t.href} href={t.href} style={itemStyle(path === t.href)}>
-          <span style={{ fontSize: 15 }}>{t.icon}</span>
-          {!collapsed && t.label}
-        </Link>
+      {GROUPS.map((g) => (
+        <div key={g.title} style={{ marginBottom: 6 }}>
+          {!collapsed && (
+            <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 1, color: "var(--color-muted)", opacity: 0.6, margin: "8px 0 3px 10px" }}>
+              {g.title}
+            </div>
+          )}
+          {collapsed && <div style={{ height: 1, background: "var(--color-border)", margin: "8px 4px" }} />}
+          {g.items.map((it) => (
+            <Link key={it.href} href={it.href} title={it.title || it.label} style={itemStyle(path === it.href)}>
+              <span style={{ fontSize: 14, width: 16, textAlign: "center" }}>{it.icon}</span>
+              {!collapsed && <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{it.label}</span>}
+            </Link>
+          ))}
+        </div>
       ))}
 
-      {!collapsed && (
-        <div style={{ fontSize: 10, textTransform: "uppercase", letterSpacing: 1, color: "var(--color-muted)", margin: "14px 0 4px 12px" }}>
-          Fall 2026 Classes
-        </div>
-      )}
-      {collapsed && <div style={{ height: 1, background: "var(--color-border)", margin: "10px 4px" }} />}
-
-      {CLASSES.map((c) => {
-        const href = `/class/${c.slug}`;
-        return (
-          <Link key={c.slug} href={href} style={itemStyle(path === href)} title={c.name}>
-            <span style={{ fontSize: 13 }}>›</span>
-            {!collapsed && <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{c.name}</span>}
-          </Link>
-        );
-      })}
-
       <div style={{ flex: 1 }} />
-
-      <Pomodoro collapsed={collapsed} />
-
-      {!collapsed && pplToday && (
-        <div className="card" style={{ padding: "8px 10px", fontSize: 12, marginBottom: 8 }}>
-          <span style={{ color: "var(--color-muted)" }}>Today's lift: </span>
-          <span style={{ color: pplToday === "Rest" ? "var(--color-muted)" : "var(--color-green)", fontWeight: 600 }}>
-            {pplToday}
-          </span>
-        </div>
-      )}
 
       <button className="btn" onClick={onOpenSettings} style={{ width: "100%" }}>
         {collapsed ? "⚙" : "⚙ Settings"}
