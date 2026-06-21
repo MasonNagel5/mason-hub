@@ -90,6 +90,11 @@ textarea.input::placeholder { color: #5c6573; }
   opacity: 0.5;
   cursor: not-allowed;
 }
+.btn:focus-visible,
+.input:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
 
 .input {
   background: var(--color-bg);
