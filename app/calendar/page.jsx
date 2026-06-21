@@ -7,7 +7,8 @@ import { startOfWeek, addDays, ymd, fmtTime } from "@/lib/dates.js";
 const SRC = {
   assignment: { color: "var(--color-accent)", label: "Assignment" },
   shift: { color: "var(--color-orange)", label: "RA Work" },
-  manual: { color: "var(--color-green)", label: "Manual" },
+  manual: { color: "var(--color-green)", label: "Event" },
+  task: { color: "var(--color-yellow)", label: "Task" },
 };
 
 export default function CalendarPage() {
