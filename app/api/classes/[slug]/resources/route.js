@@ -24,6 +24,6 @@ export async function POST(req, { params }) {
 export async function DELETE(req, { params }) {
   const { slug } = await params;
   const { searchParams } = new URL(req.url);
-  deleteResource(Number(searchParams.get("id")));
+  deleteResource(searchParams.get("id"));
   return NextResponse.json({ ok: true, resources: listResources(slug) });
 }
