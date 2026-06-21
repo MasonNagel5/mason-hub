@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0d1117;
+  --color-card: #161b22;
+  --color-card-2: #1c2330;
+  --color-border: #30363d;
+  --color-accent: #58a6ff;
+  --color-accent-dim: #1f6feb;
+  --color-text: #e6edf3;
+  --color-muted: #8b949e;
+  --color-green: #3fb950;
+  --color-orange: #f0883e;
+  --color-red: #f85149;
+  --color-yellow: #d29922;
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3d444d;
+}
+
+/* Reusable component classes */
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+
+.btn {
+  background: var(--color-card-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+.btn:hover {
+  border-color: var(--color-accent);
+}
+.btn-accent {
+  background: var(--color-accent-dim);
+  border-color: var(--color-accent-dim);
+  color: #fff;
+}
+.btn-accent:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  width: 100%;
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.tag {
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+/* Markdown editor dark fix */
+.w-md-editor {
+  background: var(--color-card) !important;
+  color: var(--color-text) !important;
+}
+.w-md-editor-toolbar {
+  background: var(--color-card-2) !important;
+  border-bottom: 1px solid var(--color-border) !important;
+}
