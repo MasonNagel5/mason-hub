@@ -23,12 +23,11 @@ export default function WeekView() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="card" style={{ padding: 16, fontSize: 13, color: "var(--color-muted)" }}>Loading week…</div>;
+  if (loading) return <div style={{ padding: 8, fontSize: 13, color: "var(--color-muted)" }}>Loading week…</div>;
 
   const today = ymd();
   return (
-    <div className="card" style={{ padding: 16 }}>
-      <h3 style={{ margin: "0 0 12px", fontSize: 14 }}>🗓 This Week</h3>
+    <div>
       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
         {days.map((d) => (
           <div key={d.date} style={{ display: "flex", gap: 12, padding: "8px 0", borderTop: "1px solid var(--color-border)" }}>
