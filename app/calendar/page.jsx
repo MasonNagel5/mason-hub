@@ -11,7 +11,7 @@ const SRC = {
 };
 
 export default function CalendarPage() {
-  const [view, setView] = useState("week");
+  const [view, setView] = useState("month");
   const [anchor, setAnchor] = useState(() => new Date());
   const [events, setEvents] = useState([]);
   const [detail, setDetail] = useState(null);
@@ -166,16 +166,16 @@ function MonthView({ range, anchor, byDay, onClick }) {
               const isToday = key === todayStr;
               const items = byDay[key] || [];
               return (
-                <div key={key} style={{ minHeight: 92, background: "var(--color-bg)", border: `1px solid ${isToday ? "var(--color-accent)" : "var(--color-border)"}`, borderRadius: 4, padding: 4, opacity: dim ? 0.45 : 1 }}>
+                <div key={key} style={{ minHeight: 116, background: "var(--color-bg)", border: `1px solid ${isToday ? "var(--color-accent)" : "var(--color-border)"}`, borderRadius: 4, padding: 5, opacity: dim ? 0.45 : 1 }}>
                   <div style={{ fontSize: 11, color: isToday ? "var(--color-accent)" : "var(--color-muted)", fontWeight: 600, marginBottom: 2 }}>{d.getDate()}</div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    {items.slice(0, 3).map((e) => (
+                    {items.slice(0, 4).map((e) => (
                       <button key={e.id} onClick={() => onClick(e)} style={{ textAlign: "left", border: "none", background: "transparent", cursor: "pointer", padding: 0, display: "flex", gap: 4, alignItems: "center" }}>
                         <span style={{ width: 6, height: 6, borderRadius: 3, background: SRC[e.source]?.color, flexShrink: 0 }} />
                         <span style={{ fontSize: 10.5, color: "var(--color-text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{e.title}</span>
                       </button>
                     ))}
-                    {items.length > 3 && <span style={{ fontSize: 10, color: "var(--color-muted)" }}>+{items.length - 3} more</span>}
+                    {items.length > 4 && <span style={{ fontSize: 10, color: "var(--color-muted)" }}>+{items.length - 4} more</span>}
                   </div>
                 </div>
               );
