@@ -22,13 +22,13 @@ export async function PATCH(req, { params }) {
   if (!classBySlug(slug)) return NextResponse.json({ error: "unknown class" }, { status: 404 });
   const b = await req.json();
   if (!b.id) return NextResponse.json({ error: "id required" }, { status: 400 });
-  updateAssignment(Number(b.id), b);
+  updateAssignment(b.id, b);
   return NextResponse.json({ ok: true, assignments: listAssignments(slug) });
 }
 
 export async function DELETE(req, { params }) {
   const { slug } = await params;
   const { searchParams } = new URL(req.url);
-  deleteAssignment(Number(searchParams.get("id")));
+  deleteAssignment(searchParams.get("id"));
   return NextResponse.json({ ok: true, assignments: listAssignments(slug) });
 }

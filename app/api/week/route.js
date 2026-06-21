@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCalendar } from "@/lib/calendar.js";
-import { getDb } from "@/lib/db.js";
+import { listItems } from "@/lib/store.js";
 import { ymd, addDays } from "@/lib/dates.js";
 
 // Next 7 days, grouped by day: calendar items (assignments, shifts, events)
@@ -10,14 +10,14 @@ export async function GET() {
   const end = addDays(now, 7);
   const items = await getCalendar(now.toISOString(), end.toISOString());
 
-  // Manual tasks with a due date in the window.
   const startStr = ymd(now);
   const endStr = ymd(end);
-  const tasks = getDb()
-    .prepare("SELECT * FROM tasks WHERE source = 'manual' AND due IS NOT NULL AND substr(due,1,10) BETWEEN ? AND ?")
-    .all(startStr, endStr);
-  for (const t of tasks) {
-    items.push({ id: `task-${t.id}`, source: "task", title: t.title, start: t.due, done: !!t.done });
+  for (const t of listItems("tasks")) {
+    if (t.source !== "manual" || !t.due) continue;
+    const d = t.due.slice(0, 10);
+    if (d >= startStr && d <= endStr) {
+      items.push({ id: `task-${t.id}`, source: "task", title: t.title, start: t.due, done: !!t.done });
+    }
   }
 
   const days = [];
