@@ -30,7 +30,7 @@ export default function AppFrame({ children }) {
       <main style={{ flex: 1, minWidth: 0, padding: "24px 30px" }}>
         {status && !status.vaultExists && (
           <div className="card" style={{ padding: 12, marginBottom: 16, borderColor: "var(--color-red)", color: "var(--color-red)", fontSize: 13 }}>
-            ⚠ Vault not found at the configured path. Open Settings (gear, bottom-left) to fix the vault path — data won't save until then.
+            ⚠ Vault not found at the configured path. Open Settings (gear, bottom-left) to fix the vault path - data won't save until then.
           </div>
         )}
         {children}

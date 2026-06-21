@@ -26,7 +26,7 @@ export default function DocsPage() {
   return (
     <div style={{ maxWidth: 820 }}>
       <h2 className="page-title">📄 Documents</h2>
-      <p className="page-sub">Resume, transcript, certifications, SF-86 prep — your important files, stored in the vault (30 - Resources/Personal Docs).</p>
+      <p className="page-sub">Resume, transcript, certifications, SF-86 prep - your important files, stored in the vault (30 - Resources/Personal Docs).</p>
 
       <div
         onDragOver={(e) => { e.preventDefault(); setDrag(true); }}

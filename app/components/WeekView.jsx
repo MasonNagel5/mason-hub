@@ -36,7 +36,7 @@ export default function WeekView() {
             </div>
             <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 4 }}>
               {d.items.length === 0 ? (
-                <span style={{ fontSize: 12, color: "var(--color-muted)" }}>—</span>
+                <span style={{ fontSize: 12, color: "var(--color-muted)" }}>-</span>
               ) : (
                 d.items.map((it) => {
                   const color = it.type === "exam" ? SRC_COLOR.exam : SRC_COLOR[it.source] || "var(--color-muted)";

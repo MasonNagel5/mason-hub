@@ -68,7 +68,7 @@ export default function Transcription({ slug }) {
       }
     };
     rec.onend = () => {
-      // The engine stops itself periodically — restart while still recording.
+      // The engine stops itself periodically - restart while still recording.
       if (recordingRef.current) {
         try {
           rec.start();
@@ -148,7 +148,7 @@ export default function Transcription({ slug }) {
           <>
             <input
               className="input"
-              placeholder="Transcript title (e.g. Lecture 4 — Block Ciphers)"
+              placeholder="Transcript title (e.g. Lecture 4 - Block Ciphers)"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               style={{ marginBottom: 10 }}

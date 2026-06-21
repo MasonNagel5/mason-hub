@@ -38,7 +38,7 @@ export default function FirstLaunch({ status, onClose, onSaved }) {
         <Field label="Your name">
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
-        <Field label="Vault path" hint={status?.vaultExists ? "✓ found" : "⚠ not found at this path — fix it to enable sync"}>
+        <Field label="Vault path" hint={status?.vaultExists ? "✓ found" : "⚠ not found at this path - fix it to enable sync"}>
           <input className="input" value={vaultPath} onChange={(e) => setVaultPath(e.target.value)} />
         </Field>
         <p style={{ fontSize: 11, color: "var(--color-muted)" }}>

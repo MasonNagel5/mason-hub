@@ -13,7 +13,7 @@ export default function LineChart({ labels = [], series = [], height = 260, unit
 
   const all = series.flatMap((s) => s.values).filter((v) => v != null && Number.isFinite(v));
   if (n === 0 || all.length === 0) {
-    return <div style={{ fontSize: 13, color: "var(--color-muted)", padding: "24px 0", textAlign: "center" }}>No data yet — log some entries to see the graph.</div>;
+    return <div style={{ fontSize: 13, color: "var(--color-muted)", padding: "24px 0", textAlign: "center" }}>No data yet - log some entries to see the graph.</div>;
   }
 
   let min = Math.min(...all);

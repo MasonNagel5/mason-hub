@@ -95,7 +95,7 @@ function Focus() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
         <div className="card" style={{ padding: 16 }}>
-          <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>Study hours — last 30 days</h3>
+          <h3 style={{ margin: "0 0 8px", fontSize: 14 }}>Study hours - last 30 days</h3>
           <LineChart labels={labels} series={hours} unit=" hrs" yZero height={220} />
         </div>
         <div className="card" style={{ padding: 16 }}>
@@ -207,7 +207,7 @@ function Flashcards() {
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <select className="input" style={{ width: "auto" }} value={domain} onChange={(e) => setDomain(e.target.value)}>
               <option value="">All domains</option>
-              {stats.domains.map((d) => <option key={d.id} value={d.id}>D{d.id} — {d.name}</option>)}
+              {stats.domains.map((d) => <option key={d.id} value={d.id}>D{d.id} - {d.name}</option>)}
             </select>
             <button className="btn btn-accent" onClick={startSession}>Start review →</button>
           </div>

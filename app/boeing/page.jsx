@@ -13,7 +13,7 @@ export default function BoeingPage() {
         <ListBoard collection="boeing_meetings" categories={["Questions to ask", "Action items"]} checkable placeholder="Add…" />
       </div>
 
-      <DocEditor docKey="boeing" label="Meeting Notes" placeholder={"## 2026-09-01 — Mentor sync\n- Topics:\n- Advice:\n- Next steps:"} minHeight={400} />
+      <DocEditor docKey="boeing" label="Meeting Notes" placeholder={"## 2026-09-01 - Mentor sync\n- Topics:\n- Advice:\n- Next steps:"} minHeight={400} />
     </div>
   );
 }

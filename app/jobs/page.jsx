@@ -49,7 +49,7 @@ export default function JobsPage() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <h2 className="page-title">🏛 Job Tracker</h2>
-          <p className="page-sub">Every target in priority order. Click a header to sort; edit any cell inline — it saves to your vault.</p>
+          <p className="page-sub">Every target in priority order. Click a header to sort; edit any cell inline - it saves to your vault.</p>
         </div>
         <button className="btn btn-accent" onClick={() => setImporting(true)}>⇪ Import from markdown</button>
       </div>
@@ -64,7 +64,7 @@ export default function JobsPage() {
             <h3 style={{ marginTop: 0 }}>Import jobs from markdown</h3>
             <p style={{ fontSize: 12, color: "var(--color-muted)", marginTop: 0 }}>
               Paste a markdown table with headers like <code>Company | Role | Type | Priority | Deadline | Link | Notes</code>,
-              or a simple <code>- Company — Role</code> list. Order is taken from row position.
+              or a simple <code>- Company - Role</code> list. Order is taken from row position.
             </p>
             <textarea className="input" rows={12} value={md} onChange={(e) => setMd(e.target.value)} placeholder={"| # | Company | Role | Priority | Deadline |\n| - | - | - | - | - |\n| 1 | PNNL | Cybersecurity Intern | High | 2026-09-01 |"} style={{ fontFamily: "monospace", fontSize: 12 }} />
             <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 12 }}>
@@ -97,11 +97,11 @@ function parseMarkdown(md) {
     }
     return rows;
   }
-  // bullet list fallback: "- Company — Role" or "1. Company - Role"
+  // bullet list fallback: "- Company - Role" or "1. Company - Role"
   for (const l of lines) {
     const m = l.match(/^(?:[-*]|\d+\.)\s+(.*)$/);
     if (!m) continue;
-    const parts = m[1].split(/—|–| - /);
+    const parts = m[1].split(/-|–| - /);
     rows.push({ company: (parts[0] || "").trim(), role: (parts[1] || "").trim() });
   }
   return rows;

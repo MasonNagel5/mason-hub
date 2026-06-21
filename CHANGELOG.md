@@ -1,6 +1,6 @@
 # Changelog
 
-## Rebuild — vault-backed, multi-tab
+## Rebuild - vault-backed, multi-tab
 
 - **Architecture:** all user data now lives in the Obsidian vault. Structured data
   is JSON under `90 - App Data/`; notes/journal/transcripts/docs are markdown & files
@@ -10,7 +10,7 @@
 - **Tabs:** To-Do, Study (timer + hours graph + Security+ flashcards), Calendar (full
   month), Journal, 5 Classes, Projects, Job Tracker (markdown import), Networking,
   SFS, Boeing Mentorship, Documents, RA, Ambassador, Budget, Weight.
-- **Everything you do saves to the vault** — tasks, completions, class notes,
+- **Everything you do saves to the vault** - tasks, completions, class notes,
   journal entries, study sessions, trackers.
 - **Desktop:** one-click launchers (Windows `.bat`, macOS `.command`) + desktop
   shortcut; free in-browser transcription; zero API keys.

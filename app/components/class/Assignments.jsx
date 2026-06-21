@@ -86,7 +86,7 @@ export default function Assignments({ slug }) {
             </div>
             <div style={{ width: 80 }}>
               <div style={{ fontSize: 11, color: "var(--color-muted)", marginBottom: 3 }}>Points</div>
-              <input className="input" type="number" value={points} onChange={(e) => setPoints(e.target.value)} placeholder="—" />
+              <input className="input" type="number" value={points} onChange={(e) => setPoints(e.target.value)} placeholder="-" />
             </div>
             <button className="btn btn-accent" onClick={add}>Save</button>
           </div>
@@ -117,7 +117,7 @@ export default function Assignments({ slug }) {
                 <tr key={a.id} style={{ borderTop: "1px solid var(--color-border)" }}>
                   <td style={{ padding: "6px 0" }}>{a.name}</td>
                   <td style={{ color: overdue ? "var(--color-red)" : "var(--color-muted)" }}>
-                    {a.due ? `${new Date(a.due).toLocaleDateString([], { month: "short", day: "numeric" })} ${fmtTime(a.due)}` : "—"}
+                    {a.due ? `${new Date(a.due).toLocaleDateString([], { month: "short", day: "numeric" })} ${fmtTime(a.due)}` : "-"}
                   </td>
                   <td>
                     <select
@@ -131,7 +131,7 @@ export default function Assignments({ slug }) {
                       ))}
                     </select>
                   </td>
-                  <td style={{ textAlign: "right", color: "var(--color-muted)" }}>{a.points ?? "—"}</td>
+                  <td style={{ textAlign: "right", color: "var(--color-muted)" }}>{a.points ?? "-"}</td>
                   <td style={{ textAlign: "right" }}>
                     <button className="btn" style={{ padding: "2px 6px", fontSize: 11 }} onClick={() => remove(a.id)}>✕</button>
                   </td>

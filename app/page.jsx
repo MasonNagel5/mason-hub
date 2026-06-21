@@ -104,7 +104,7 @@ export default function TodoPage() {
               </div>
 
               {loading && <div style={{ color: "var(--color-muted)", fontSize: 13 }}>Loading…</div>}
-              {!loading && tasks.length === 0 && <div style={{ color: "var(--color-muted)", fontSize: 13 }}>Nothing yet. Add a task above — it saves straight to your vault.</div>}
+              {!loading && tasks.length === 0 && <div style={{ color: "var(--color-muted)", fontSize: 13 }}>Nothing yet. Add a task above - it saves straight to your vault.</div>}
 
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {open.map((t) => <TaskRow key={t.id} t={t} onToggle={toggle} onDelete={del} />)}
