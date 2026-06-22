@@ -161,7 +161,7 @@ function TaskRow({ t, onToggle, onDelete }) {
         {t.due && <span style={{ fontSize: 11, marginLeft: 8, color: overdue ? "var(--color-red)" : "var(--color-muted)" }}>{new Date(t.due).toLocaleDateString([], { month: "short", day: "numeric" })}</span>}
       </div>
       <span className="tag" style={{ color: tag.color, borderColor: tag.color }}>{tag.label}</span>
-      {t.source === "manual" && <button className="btn" style={{ padding: "2px 6px", fontSize: 11 }} onClick={() => onDelete(t.id)}>✕</button>}
+      <button className="btn" style={{ padding: "2px 6px", fontSize: 11 }} onClick={() => onDelete(t.id)} title={t.source === "manual" ? "Delete task" : "Dismiss suggestion"}>✕</button>
     </div>
   );
 }
