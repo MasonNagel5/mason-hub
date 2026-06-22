@@ -5,7 +5,7 @@ import Tracker from "../components/Tracker";
 import { store } from "../lib/client";
 
 const COLUMNS = [
-  { key: "order", label: "#", type: "number", width: 44 },
+  { key: "order", label: "#", type: "number", width: 64 },
   { key: "company", label: "Company / Agency", type: "text", width: 180 },
   { key: "role", label: "Role", type: "text", width: 180 },
   { key: "type", label: "Type", type: "select", options: ["Internship", "Co-op", "Full-time", "Fellowship"], width: 110 },
@@ -56,6 +56,7 @@ export default function JobsPage() {
       {msg && <div className="card" style={{ padding: 8, marginBottom: 12, fontSize: 13, color: "var(--color-green)", borderColor: "var(--color-green)" }}>{msg}</div>}
 
       <Tracker key={reloadKey} collection="jobs" columns={COLUMNS} defaultSort={{ key: "order", dir: "asc" }} statusColors={STATUS_COLORS}
+        quickSorts={[{ label: "⏱ Soonest deadline", key: "deadline", dir: "asc" }, { label: "★ Priority order", key: "order", dir: "asc" }]}
         emptyHint="No jobs yet. Use “Import from markdown” to paste your researched list (Cowork can generate it), or add rows manually." />
 
       {importing && (
@@ -79,7 +80,7 @@ export default function JobsPage() {
   );
 }
 
-// Parse a markdown table or bullet list into job rows.
+// Parse a markdown table, tab-separated table, or bullet list into job rows.
 function parseMarkdown(md) {
   const lines = md.split("\n").map((l) => l.trim()).filter(Boolean);
   const rows = [];
@@ -96,6 +97,19 @@ function parseMarkdown(md) {
       if (row.company || row.role) rows.push(row);
     }
     return rows;
+  }
+  // Tab-separated table (e.g. a rendered table copy/pasted, losing the | bars).
+  const tsvRows = lines.filter((l) => l.includes("\t"));
+  if (tsvRows.length >= 2) {
+    const headers = tsvRows[0].split("\t").map((s) => s.trim().toLowerCase());
+    for (let i = 1; i < tsvRows.length; i++) {
+      const cells = tsvRows[i].split("\t").map((s) => s.trim());
+      if (/^-{2,}$/.test(cells[0]) || cells.every((c) => !c)) continue;
+      const row = {};
+      headers.forEach((h, idx) => { mapField(row, h, cells[idx] || ""); });
+      if (row.company || row.role) rows.push(row);
+    }
+    if (rows.length) return rows;
   }
   // bullet list fallback: "- Company - Role" or "1. Company - Role"
   for (const l of lines) {

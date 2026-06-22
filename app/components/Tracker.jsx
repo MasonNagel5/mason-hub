@@ -7,7 +7,7 @@ import { store } from "../lib/client";
  * Generic editable, sortable "spreadsheet" backed by a vault JSON collection.
  * columns: [{ key, label, type: text|number|date|url|select, options?, width? }]
  */
-export default function Tracker({ collection, columns, defaultSort, statusColors = {}, emptyHint }) {
+export default function Tracker({ collection, columns, defaultSort, statusColors = {}, emptyHint, quickSorts = [] }) {
   const [rows, setRows] = useState([]);
   const [sortKey, setSortKey] = useState(defaultSort?.key || columns[0].key);
   const [sortDir, setSortDir] = useState(defaultSort?.dir || "asc");
@@ -41,6 +41,9 @@ export default function Tracker({ collection, columns, defaultSort, statusColors
     copy.sort((a, b) => {
       const av = a[sortKey] ?? "";
       const bv = b[sortKey] ?? "";
+      // Blanks always sort last, regardless of direction (e.g. no deadline set).
+      if (av === "" && bv !== "") return 1;
+      if (bv === "" && av !== "") return -1;
       const na = Number(av), nb = Number(bv);
       let cmp;
       if (!isNaN(na) && !isNaN(nb) && av !== "" && bv !== "") cmp = na - nb;
@@ -57,6 +60,18 @@ export default function Tracker({ collection, columns, defaultSort, statusColors
 
   return (
     <div className="card" style={{ padding: 12, overflowX: "auto" }}>
+      {quickSorts.length > 0 && (
+        <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+          {quickSorts.map((q) => {
+            const dir = q.dir || "asc";
+            const active = sortKey === q.key && sortDir === dir;
+            return (
+              <button key={q.label} className={`btn ${active ? "btn-accent" : ""}`} style={{ fontSize: 12, padding: "3px 10px" }}
+                onClick={() => { setSortKey(q.key); setSortDir(dir); }}>{q.label}</button>
+            );
+          })}
+        </div>
+      )}
       <table className="sheet">
         <thead>
           <tr>
@@ -98,11 +113,12 @@ function Cell({ c, value, onChange, onCommit, statusColors }) {
 
   if (c.type === "select") {
     const color = statusColors[value];
+    const optStyle = { background: "var(--color-card)", color: "var(--color-text)" };
     return (
       <select value={value || ""} onChange={(e) => { onChange(e.target.value); onCommit(e.target.value); }}
         style={{ ...base, border: `1px solid ${color || "var(--color-border)"}`, color: color || "var(--color-text)" }}>
-        <option value=""></option>
-        {c.options.map((o) => <option key={o} value={o} style={{ color: "var(--color-text)" }}>{o}</option>)}
+        <option value="" style={optStyle}></option>
+        {c.options.map((o) => <option key={o} value={o} style={optStyle}>{o}</option>)}
       </select>
     );
   }
@@ -116,6 +132,6 @@ function Cell({ c, value, onChange, onCommit, statusColors }) {
   }
   return (
     <input type={c.type === "number" ? "number" : c.type === "date" ? "date" : "text"} defaultValue={value ?? ""}
-      onFocus={focus} onBlur={blur} style={base} />
+      onFocus={focus} onChange={(e) => onChange(e.target.value)} onBlur={blur} style={base} />
   );
 }
