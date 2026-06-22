@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { listItems, addItem, updateItem, deleteItem, replaceAll } from "@/lib/store.js";
-import { writeNetworkingMirror } from "@/lib/mirror.js";
+import { writeNetworkingMirror, writeInternshipNotesMirror } from "@/lib/mirror.js";
 
 // Collections that keep a human-readable markdown mirror in the vault for Cowork.
 function mirror(name) {
   if (name === "networking") {
     try { writeNetworkingMirror(); } catch {}
+  } else if (name === "internship_notes") {
+    try { writeInternshipNotesMirror(); } catch {}
   }
 }
 
@@ -22,6 +24,7 @@ const ALLOWED = new Set([
   "boeing_meetings",
   "resume_bullets",
   "gpa_plan",
+  "internship_notes",
 ]);
 
 function ok(name) {

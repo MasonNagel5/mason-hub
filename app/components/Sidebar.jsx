@@ -34,6 +34,7 @@ const GROUPS = [
   {
     title: "Work",
     items: [
+      { href: "/internship", label: "Internship", icon: "💼" },
       { href: "/ra", label: "RA", icon: "🏠" },
       { href: "/ambassador", label: "Ambassador", icon: "🎤" },
     ],
