@@ -22,10 +22,12 @@ export default function StudyPage() {
 // ---------------- Focus timer + hours graph ----------------
 function Focus() {
   const [data, setData] = useState({ todayMinutes: 0, recent: [], series: [], categoryTotals: {}, categories: [] });
+  const [mode, setMode] = useState("timer"); // "timer" (count down) | "stopwatch" (count up)
   const [category, setCategory] = useState("Certs");
   const [subject, setSubject] = useState("");
   const [minutes, setMinutes] = useState(25);
-  const [remaining, setRemaining] = useState(25 * 60);
+  const [remaining, setRemaining] = useState(25 * 60); // timer: seconds left
+  const [elapsed, setElapsed] = useState(0); // stopwatch: seconds counted up
   const [running, setRunning] = useState(false);
   const startRef = useRef(null);
   const tickRef = useRef(null);
@@ -35,26 +37,35 @@ function Focus() {
 
   useEffect(() => {
     if (!running) return;
-    tickRef.current = setInterval(() => setRemaining((r) => { if (r <= 1) { finish(true); return 0; } return r - 1; }), 1000);
+    tickRef.current = setInterval(() => {
+      if (mode === "stopwatch") setElapsed((e) => e + 1);
+      else setRemaining((r) => { if (r <= 1) { finish(true); return 0; } return r - 1; });
+    }, 1000);
     return () => clearInterval(tickRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running]);
+  }, [running, mode]);
 
-  function start() { setRemaining(minutes * 60); setRunning(true); startRef.current = Date.now(); }
+  function start() {
+    if (mode === "stopwatch") setElapsed(0); else setRemaining(minutes * 60);
+    setRunning(true); startRef.current = Date.now();
+  }
   async function finish(completed) {
     clearInterval(tickRef.current);
     setRunning(false);
-    const elapsed = startRef.current ? (Date.now() - startRef.current) / 60000 : 0;
-    const logged = completed ? minutes : elapsed;
+    const realElapsed = startRef.current ? (Date.now() - startRef.current) / 60000 : 0;
+    const logged = mode === "stopwatch" ? realElapsed : (completed ? minutes : realElapsed);
     if (logged >= 1) {
       try { await api("/api/study", { method: "POST", body: JSON.stringify({ category, subject, minutes: logged }) }); } catch {}
       load();
     }
-    setRemaining(minutes * 60);
+    setElapsed(0); setRemaining(minutes * 60);
   }
 
-  const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
-  const ss = String(remaining % 60).padStart(2, "0");
+  const shown = mode === "stopwatch" ? elapsed : remaining;
+  const hh = Math.floor(shown / 3600);
+  const mm = String(Math.floor((shown % 3600) / 60)).padStart(2, "0");
+  const ss = String(shown % 60).padStart(2, "0");
+  const clock = hh > 0 ? `${hh}:${mm}:${ss}` : `${mm}:${ss}`;
   const labels = data.series.map((d) => d.date);
   const hours = [{ name: "Hours", color: "var(--color-accent)", values: data.series.map((d) => +(d.total / 60).toFixed(2)) }];
   const weekMin = data.series.slice(-7).reduce((s, d) => s + d.total, 0);
@@ -62,9 +73,13 @@ function Focus() {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "320px 1fr", gap: 16, alignItems: "start" }}>
       <div className="card" style={{ padding: 16 }}>
-        <h3 style={{ margin: "0 0 12px", fontSize: 14 }}>Focus timer</h3>
+        <h3 style={{ margin: "0 0 12px", fontSize: 14 }}>Focus {mode === "stopwatch" ? "stopwatch" : "timer"}</h3>
         {!running ? (
           <>
+            <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
+              <button className={mode === "timer" ? "btn btn-accent" : "btn"} style={{ flex: 1, fontSize: 12 }} onClick={() => setMode("timer")}>⏲ Timer</button>
+              <button className={mode === "stopwatch" ? "btn btn-accent" : "btn"} style={{ flex: 1, fontSize: 12 }} onClick={() => setMode("stopwatch")}>⏱ Stopwatch</button>
+            </div>
             <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>Category</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 10 }}>
               {data.categories.map((c) => (
@@ -72,17 +87,19 @@ function Focus() {
               ))}
             </div>
             <input className="input" placeholder="Optional detail (e.g. Domain 2, PA 1)" value={subject} onChange={(e) => setSubject(e.target.value)} style={{ marginBottom: 10 }} />
-            <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
-              {[25, 50, 15].map((m) => (
-                <button key={m} className={minutes === m ? "btn btn-accent" : "btn"} style={{ flex: 1, fontSize: 12 }} onClick={() => setMinutes(m)}>{m}m</button>
-              ))}
-            </div>
+            {mode === "timer" && (
+              <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
+                {[25, 50, 15].map((m) => (
+                  <button key={m} className={minutes === m ? "btn btn-accent" : "btn"} style={{ flex: 1, fontSize: 12 }} onClick={() => setMinutes(m)}>{m}m</button>
+                ))}
+              </div>
+            )}
             <button className="btn btn-accent" style={{ width: "100%" }} onClick={start}>Start</button>
           </>
         ) : (
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: 11, color: "var(--color-muted)", textTransform: "uppercase" }}>{category}{subject ? ` · ${subject}` : ""}</div>
-            <div style={{ fontSize: 52, fontWeight: 800, fontVariantNumeric: "tabular-nums", margin: "8px 0" }}>{mm}:{ss}</div>
+            <div style={{ fontSize: 52, fontWeight: 800, fontVariantNumeric: "tabular-nums", margin: "8px 0" }}>{clock}</div>
             <button className="btn" style={{ width: "100%" }} onClick={() => finish(false)}>Stop & log</button>
           </div>
         )}
