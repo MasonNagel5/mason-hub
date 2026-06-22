@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 import { listItems, addItem, updateItem, deleteItem, replaceAll } from "@/lib/store.js";
+import { writeNetworkingMirror } from "@/lib/mirror.js";
+
+// Collections that keep a human-readable markdown mirror in the vault for Cowork.
+function mirror(name) {
+  if (name === "networking") {
+    try { writeNetworkingMirror(); } catch {}
+  }
+}
 
 // Generic vault-backed collection API. Whitelisted names only.
 const ALLOWED = new Set([
@@ -32,9 +40,11 @@ export async function POST(req, { params }) {
   const body = await req.json();
   if (Array.isArray(body.replaceAll)) {
     replaceAll(name, body.replaceAll);
+    mirror(name);
     return NextResponse.json({ items: listItems(name) });
   }
   const row = addItem(name, body.item || body);
+  mirror(name);
   return NextResponse.json({ item: row, items: listItems(name) });
 }
 
@@ -44,6 +54,7 @@ export async function PATCH(req, { params }) {
   const { id, patch } = await req.json();
   if (!id) return NextResponse.json({ error: "id required" }, { status: 400 });
   updateItem(name, id, patch || {});
+  mirror(name);
   return NextResponse.json({ items: listItems(name) });
 }
 
@@ -52,5 +63,6 @@ export async function DELETE(req, { params }) {
   if (!ok(name)) return NextResponse.json({ error: "unknown collection" }, { status: 404 });
   const { searchParams } = new URL(req.url);
   deleteItem(name, searchParams.get("id"));
+  mirror(name);
   return NextResponse.json({ items: listItems(name) });
 }
