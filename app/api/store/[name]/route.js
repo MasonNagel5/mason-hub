@@ -1,13 +1,16 @@
 import { NextResponse } from "next/server";
 import { listItems, addItem, updateItem, deleteItem, replaceAll } from "@/lib/store.js";
-import { writeNetworkingMirror, writeInternshipNotesMirror } from "@/lib/mirror.js";
+import { writeNetworkingMirror, writeNotesMirror } from "@/lib/mirror.js";
+
+// Note collections that mirror to an Obsidian markdown file, keyed to a feature.
+const NOTES_FEATURES = { internship_notes: "internship", boeing_notes: "boeing" };
 
 // Collections that keep a human-readable markdown mirror in the vault for Cowork.
 function mirror(name) {
   if (name === "networking") {
     try { writeNetworkingMirror(); } catch {}
-  } else if (name === "internship_notes") {
-    try { writeInternshipNotesMirror(); } catch {}
+  } else if (NOTES_FEATURES[name]) {
+    try { writeNotesMirror(NOTES_FEATURES[name]); } catch {}
   }
 }
 
@@ -25,6 +28,7 @@ const ALLOWED = new Set([
   "resume_bullets",
   "gpa_plan",
   "internship_notes",
+  "boeing_notes",
 ]);
 
 function ok(name) {

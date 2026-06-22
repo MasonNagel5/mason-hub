@@ -2,6 +2,7 @@
 
 import DocEditor from "../components/DocEditor";
 import ListBoard from "../components/ListBoard";
+import AudioNotes from "../components/AudioNotes";
 
 export default function BoeingPage() {
   return (
@@ -14,6 +15,10 @@ export default function BoeingPage() {
       </div>
 
       <DocEditor docKey="boeing" label="Meeting Notes" placeholder={"## 2026-09-01 - Mentor sync\n- Topics:\n- Advice:\n- Next steps:"} minHeight={400} />
+
+      <div style={{ marginTop: 24 }}>
+        <AudioNotes feature="boeing" collection="boeing_notes" mirrorLabel="20 - Areas/Boeing Mentorship/Boeing Mentorship Notes.md" />
+      </div>
     </div>
   );
 }
