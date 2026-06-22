@@ -8,10 +8,10 @@ that the Mason Hub job tracker can parse and import.
 A pipe table with a header row, a separator row, and one row per job:
 
 ```markdown
-| # | Company | Role | Type | Priority | Status | Deadline | Link | Notes |
-| - | - | - | - | - | - | - | - | - |
-| 1 | PNNL | Cybersecurity Intern | Internship | High | To apply | 2026-09-01 | https://jobs.pnnl.gov/123 | Clearance preferred |
-| 2 | MITRE | SOC Analyst Co-op | Co-op | Medium | Researching | 2026-08-15 | https://careers.mitre.org/456 | Reach out to recruiter at career fair |
+| # | Company | Role | Type | Priority | Status | Opens | Deadline | Link | Notes |
+| - | - | - | - | - | - | - | - | - | - |
+| 1 | PNNL | National Security Intern | Internship | High | To apply | ~Sep 2026 | 2026-09-01 | https://www.pnnl.gov/national-security-internship | WA state lab; strong WSU network; ICS focus |
+| 2 | MITRE | SOC Analyst Co-op | Co-op | Medium | Researching | Aug 2026 | 2026-08-15 | https://careers.mitre.org/456 | Reach out to recruiter at career fair |
 ```
 
 Rules the parser enforces:
@@ -31,6 +31,7 @@ Rules the parser enforces:
 | Type     | `Type`                                                 |
 | Priority | `Priority`, `Tier`                                     |
 | Status   | `Status`                                               |
+| Opens    | `Opens`, `Open`, `Application opens`                    |
 | Deadline | `Deadline`, `Due`, `Close`, `Closes`                   |
 | Link     | `Link`, `URL`, `Apply`                                 |
 | Order    | `#`, `Order`, `Rank`, `N`, `No`                        |
@@ -47,6 +48,7 @@ dropdowns if they match **exactly** (capitalization matters):
 - **Type:** `Internship` · `Co-op` · `Full-time` · `Fellowship`
 - **Priority:** `High` · `Medium` · `Low`
 - **Status:** `Researching` · `To apply` · `Applied` · `OA/Assessment` · `Interview` · `Offer` · `Accepted` · `Rejected`
+- **Opens:** free text — when applications open, e.g. `~Sep 2026`, `Aug 2026`, `Rolling`. Blank if unknown.
 - **Deadline:** ISO date `YYYY-MM-DD` (e.g. `2026-09-01`). Leave blank if unknown — don't write "TBD".
 - **Link:** full `https://…` URL, or blank.
 - **Notes:** free text, single line (no pipes `|` inside the cell — they'll break the column split).
@@ -79,8 +81,8 @@ split on the first dash:
 - MITRE - SOC Analyst Co-op
 ```
 
-Everything after the first dash becomes the role; Type/Priority/Status/Deadline/Link/Notes are
-lost. **Prefer the table.**
+Everything after the first dash becomes the role; Type/Priority/Status/Opens/Deadline/Link/Notes
+are lost. **Prefer the table.**
 
 ## Import behavior
 

@@ -11,6 +11,7 @@ const COLUMNS = [
   { key: "type", label: "Type", type: "select", options: ["Internship", "Co-op", "Full-time", "Fellowship"], width: 110 },
   { key: "priority", label: "Priority", type: "select", options: ["High", "Medium", "Low"], width: 100 },
   { key: "status", label: "Status", type: "select", options: ["Researching", "To apply", "Applied", "OA/Assessment", "Interview", "Offer", "Accepted", "Rejected"], width: 130 },
+  { key: "opens", label: "Opens", type: "text", width: 110 },
   { key: "deadline", label: "Deadline", type: "date", width: 140 },
   { key: "link", label: "Link", type: "url", width: 70 },
   { key: "notes", label: "Notes", type: "text", width: 220 },
@@ -128,6 +129,7 @@ function mapField(row, header, value) {
   else if (["type"].includes(h)) row.type = value;
   else if (["priority", "tier"].includes(h)) row.priority = value;
   else if (["status"].includes(h)) row.status = value;
+  else if (["opens", "open", "applicationopens", "appopens", "appopen"].includes(h)) row.opens = value;
   else if (["deadline", "due", "close", "closes"].includes(h)) row.deadline = value;
   else if (["link", "url", "apply"].includes(h)) row.link = value;
   else if (["order", "rank", "n", "no"].includes(h)) row.order = Number(value) || undefined;
